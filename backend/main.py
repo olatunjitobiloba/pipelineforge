@@ -1,18 +1,19 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-_ = load_dotenv()
+from app.api import profile
 
 app = FastAPI(title="PipelineForge API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # update on deploy
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(profile.router)
+
 
 @app.get("/health")
 def health_check():
