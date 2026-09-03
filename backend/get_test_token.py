@@ -18,4 +18,3 @@ password = input("Password: ")
 res = client.auth.sign_in_with_password({"email": email, "password": password})
 print("\nAccess token:\n")
 print(res.session.access_token)
-

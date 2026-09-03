@@ -42,6 +42,12 @@ export default async function DashboardPage() {
           <p>Logged in as: {profile.email}</p>
           <p>Role: {profile.role}</p>
           <p>Org ID: {profile.org_id}</p>
+          <a
+            href="/dashboard/campaigns"
+            className="inline-block mt-4 bg-black text-white rounded px-4 py-2 text-sm"
+          >
+            View Campaigns →
+          </a>
         </div>
       )}
     </div>
