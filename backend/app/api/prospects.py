@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Query
+from fastapi import APIRouter, Depends, UploadFile, File, Query, Response
 from app.core.auth import verify_token, AuthContext
 from app.db.supabase_client import get_supabase_for_user
 from app.models.prospect import Prospect, ProspectCreate, ProspectUpdate
@@ -39,6 +39,13 @@ def update_prospect(
 ):
     supabase = get_supabase_for_user(auth.token)
     return prospect_service.update_prospect(supabase, prospect_id, data)
+
+
+@router.delete("/{prospect_id}", status_code=204)
+def delete_prospect(prospect_id: str, auth: AuthContext = Depends(verify_token)):
+    supabase = get_supabase_for_user(auth.token)
+    prospect_service.delete_prospect(supabase, prospect_id)
+    return Response(status_code=204)
 
 
 @router.post("/import/csv", status_code=200)

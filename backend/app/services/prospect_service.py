@@ -77,3 +77,9 @@ def update_prospect(supabase: Client, prospect_id: str, data: ProspectUpdate) ->
     if not result.data:
         raise HTTPException(status_code=404, detail="Prospect not found or update failed")
     return result.data[0]
+
+
+def delete_prospect(supabase: Client, prospect_id: str) -> None:
+    result = supabase.table("prospects").delete().eq("id", prospect_id).execute()
+    if result.data is not None and len(result.data) == 0:
+        raise HTTPException(status_code=404, detail="Prospect not found or delete failed")

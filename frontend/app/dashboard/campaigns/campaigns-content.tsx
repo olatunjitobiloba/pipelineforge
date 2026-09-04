@@ -106,7 +106,11 @@ export default function CampaignsContent() {
                     {campaigns.map((c) => (
                         <div key={c.id} className="border rounded-lg p-4 flex justify-between items-start">
                             <div>
-                                <h3 className="font-medium">{c.name}</h3>
+                                <h3>
+                                    <a href={`/dashboard/campaigns/${c.id}/prospects`} className="font-medium hover:underline">
+                                        {c.name}
+                                    </a>
+                                </h3>
                                 <p className="text-sm text-gray-500">{c.niche} · {c.city}</p>
                                 {c.outreach_angle && (
                                     <p className="text-sm text-gray-400 mt-1">{c.outreach_angle}</p>
