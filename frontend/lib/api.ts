@@ -1,7 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
 async function getAuthHeader() {
   const supabase = createClient()
   const { data } = await supabase.auth.getSession()
@@ -38,7 +36,7 @@ export interface CampaignCreateInput {
 
 export async function fetchCampaigns(): Promise<Campaign[]> {
   const headers = await getAuthHeader()
-  const res = await fetch(`${API_URL}/campaigns`, { headers })
+  const res = await fetch('/api/campaigns', { headers })
 
   if (!res.ok) throw new Error(`Failed to fetch campaigns: ${res.status}`)
   return res.json()
@@ -46,7 +44,7 @@ export async function fetchCampaigns(): Promise<Campaign[]> {
 
 export async function createCampaign(input: CampaignCreateInput): Promise<Campaign> {
   const headers = await getAuthHeader()
-  const res = await fetch(`${API_URL}/campaigns`, {
+  const res = await fetch('/api/campaigns', {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
@@ -64,7 +62,7 @@ export async function updateCampaignStatus(
   status: 'active' | 'paused' | 'archived'
 ): Promise<Campaign> {
   const headers = await getAuthHeader()
-  const res = await fetch(`${API_URL}/campaigns/${id}`, {
+  const res = await fetch(`/api/campaigns/${id}`, {
     method: 'PATCH',
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
