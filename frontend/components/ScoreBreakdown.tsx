@@ -27,7 +27,7 @@ export default function ScoreBreakdown({ breakdown, engine }: Props) {
     <div className="relative inline-block">
       <button
         onClick={() => setOpen(!open)}
-        className="text-xs text-gray-600 hover:text-gray-900 underline underline-offset-2"
+        className="text-xs text-gray-400 hover:text-white underline underline-offset-2"
       >
         details
       </button>

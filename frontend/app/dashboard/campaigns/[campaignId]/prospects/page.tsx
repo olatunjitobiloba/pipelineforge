@@ -262,7 +262,7 @@ export default function ProspectsPage() {
                         <button
                           onClick={() => handleScoreOne(p.id)}
                           disabled={scoringRow === p.id}
-                          className="text-xs text-gray-500 hover:text-gray-900 hover:underline disabled:opacity-40"
+                          className="text-xs text-gray-400 hover:text-white hover:underline disabled:opacity-40"
                         >
                           {scoringRow === p.id ? 'Scoring...' : 'Re-score'}
                         </button>
