@@ -89,6 +89,7 @@ export interface Prospect {
   location: string | null
   stage: string
   score: number | null
+  score_breakdown: Record<string, unknown> | null   // ← add this
   data_source: string
   human_verified: boolean
   created_at: string
@@ -169,4 +170,34 @@ export async function deleteProspect(prospectId: string): Promise<void> {
     const err = await res.json().catch(() => ({}))
     throw new Error(err.detail ?? 'Failed to delete prospect')
   }
+}
+
+export async function scoreProspect(prospectId: string): Promise<Prospect> {
+  const headers = await getAuthHeaders()
+  const res = await fetch(`${API_URL}/prospects/${prospectId}/score`, {
+    method: 'POST',
+    headers,
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail ?? 'Scoring failed')
+  }
+  return res.json()
+}
+
+export async function scoreCampaign(campaignId: string): Promise<{
+  scored: number
+  total: number
+  errors: string[]
+}> {
+  const headers = await getAuthHeaders()
+  const res = await fetch(
+    `${API_URL}/prospects/score/campaign?campaign_id=${campaignId}`,
+    { method: 'POST', headers }
+  )
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail ?? 'Bulk scoring failed')
+  }
+  return res.json()
 }

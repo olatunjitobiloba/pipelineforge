@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes score-bar-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--score-width);
+  }
+}
+
+.score-bar-fill {
+  width: var(--score-width);
+  animation: score-bar-fill 800ms ease-out both;
+}

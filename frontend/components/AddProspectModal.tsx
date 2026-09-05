@@ -1,10 +1,10 @@
 'use client'
 import { useState } from 'react'
-import { createProspect } from '@/lib/api'
+import { createProspect, Prospect } from '@/lib/api'
 
 interface Props {
   campaignId: string
-  onSuccess: () => void
+  onSuccess: (prospect: Prospect) => void
   onClose: () => void
 }
 
@@ -28,7 +28,7 @@ export default function AddProspectModal({ campaignId, onSuccess, onClose }: Pro
     setSubmitting(true)
     setError('')
     try {
-      await createProspect({
+      const created = await createProspect({
         campaign_id: campaignId,
         business_name: form.business_name,
         ...(form.phone.trim() ? { phone: form.phone } : {}),
@@ -36,7 +36,7 @@ export default function AddProspectModal({ campaignId, onSuccess, onClose }: Pro
         ...(form.website_url.trim() ? { website_url: form.website_url } : {}),
         ...(form.location.trim() ? { location: form.location } : {}),
       })
-      onSuccess()
+      onSuccess(created)
       onClose()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to add prospect')

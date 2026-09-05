@@ -25,6 +25,17 @@ def assert_campaign_belongs_to_org(supabase: Client, campaign_id: str, org_id: s
 
 
 def create_prospect(supabase: Client, org_id: str, data: ProspectCreate) -> dict:
+    duplicate = (
+        supabase.table("prospects")
+        .select("id")
+        .eq("campaign_id", data.campaign_id)
+        .ilike("business_name", data.business_name.strip())
+        .limit(1)
+        .execute()
+    )
+    if duplicate.data:
+        raise HTTPException(status_code=409, detail="A prospect with this business name already exists in this campaign")
+
     payload = data.model_dump()
     payload["org_id"] = org_id
 
