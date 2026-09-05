@@ -4,6 +4,7 @@ from app.db.supabase_client import get_supabase_for_user
 from app.models.prospect import Prospect, ProspectCreate, ProspectUpdate
 from app.services import prospect_service
 from app.utils.csv_parser import parse_csv
+from app.services.prospect_service import score_one, score_campaign_prospects
 
 router = APIRouter(prefix="/prospects", tags=["prospects"])
 
@@ -79,3 +80,22 @@ async def import_csv(
         "skipped": len(errors),
         "errors": errors,
     }
+
+@router.post("/{prospect_id}/score")
+def score_prospect_endpoint(
+    prospect_id: str,
+    auth: AuthContext = Depends(verify_token),
+):
+    """Score a single prospect on demand."""
+    supabase = get_supabase_for_user(auth.token)
+    return score_one(supabase, prospect_id)
+
+
+@router.post("/score/campaign")
+def score_campaign_endpoint(
+    campaign_id: str = Query(...),
+    auth: AuthContext = Depends(verify_token),
+):
+    """Score all unscored prospects in a campaign (bulk)."""
+    supabase = get_supabase_for_user(auth.token)
+    return score_campaign_prospects(supabase, campaign_id)

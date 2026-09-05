@@ -1,7 +1,7 @@
 from supabase import Client
 from fastapi import HTTPException
 from app.models.prospect import ProspectCreate, ProspectUpdate
-
+from app.scoring.engine import score_prospect
 
 def get_org_id(supabase: Client, user_id: str) -> str:
     """Fetch org_id from the authenticated user's profile. Never trust client input."""
@@ -83,3 +83,57 @@ def delete_prospect(supabase: Client, prospect_id: str) -> None:
     result = supabase.table("prospects").delete().eq("id", prospect_id).execute()
     if result.data is not None and len(result.data) == 0:
         raise HTTPException(status_code=404, detail="Prospect not found or delete failed")
+
+def score_one(supabase: Client, prospect_id: str) -> dict:
+    """Score a single prospect and persist result to DB."""
+    prospect = get_prospect(supabase, prospect_id)
+
+    result = score_prospect(prospect)
+
+    updated = supabase.table("prospects").update({
+        "score": result["score"],
+        "score_breakdown": result["breakdown"],
+        "stage": "scored",
+    }).eq("id", prospect_id).execute()
+
+    if not updated.data:
+        raise HTTPException(status_code=500, detail="Failed to persist score")
+
+    return {
+        **updated.data[0],
+        "engine": result["engine"],
+    }
+
+
+def score_campaign_prospects(supabase: Client, campaign_id: str) -> dict:
+    """
+    Score all unscored prospects in a campaign.
+    Processes sequentially to stay within Groq's 30 req/min free tier.
+    """
+    prospects = (
+        supabase.table("prospects")
+        .select("*")
+        .eq("campaign_id", campaign_id)
+        .is_("score", "null")   # only unscored
+        .execute()
+    )
+
+    rows = prospects.data or []
+    if not rows:
+        return {"scored": 0, "message": "No unscored prospects found"}
+
+    scored = 0
+    errors = []
+
+    for p in rows:
+        try:
+            score_one(supabase, p["id"])
+            scored += 1
+        except Exception as e:
+            errors.append(f"{p['business_name']}: {str(e)}")
+
+    return {
+        "scored": scored,
+        "total": len(rows),
+        "errors": errors,
+    }
